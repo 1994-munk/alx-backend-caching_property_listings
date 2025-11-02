@@ -7,18 +7,16 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Property
 
 
+
 @csrf_exempt
-@cache_page(60 * 15)  # Cache this view for 15 minutes (900 seconds)
+@cache_page(60 * 15)  # Cache the entire view for 15 minutes
 def property_list(request):
     """
     View to return all properties as JSON.
-    Cached in Redis for 15 minutes.
+    Uses low-level Redis cache for queryset and view cache for response.
     """
-    # 🏡 Retrieve all property records
-    properties = Property.objects.all().values()
+    # 🧠 Fetch properties using the cached helper
+    properties = get_all_properties()
 
-    # 🧱 Convert the queryset to a list of dictionaries
-    data = list(properties)
-
-    # 💬 Return the response wrapped inside a 'data' key
-    return JsonResponse({"data": data})
+    # 💬 Return data in JSON format
+    return JsonResponse({"data": properties})
