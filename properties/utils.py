@@ -30,30 +30,30 @@ def get_redis_cache_metrics():
     Returns a dictionary of results.
     """
     try:
-        # Connect to Redis using the 'default' Django cache
+        # Connect to Redis cache
         redis_conn = get_redis_connection("default")
-        
-        # Get Redis info dictionary
+
+        # Get Redis information
         info = redis_conn.info()
-        
-        # Extract relevant metrics
+
+        # Extract hits and misses
         hits = info.get("keyspace_hits", 0)
         misses = info.get("keyspace_misses", 0)
-        
-        # Calculate hit ratio safely
-        total = hits + misses
-        hit_ratio = (hits / total) if total > 0 else 0
-        
-        # Log the metrics for monitoring
+
+        # Calculate total requests and hit ratio
+        total_requests = hits + misses
+        hit_ratio = hits / total_requests if total_requests > 0 else 0
+
+        # Log the results
         logger.info(f"Redis Cache Metrics: Hits={hits}, Misses={misses}, Hit Ratio={hit_ratio:.2%}")
-        
-        # Return dictionary for debugging or API reporting
+
+        # Return a dictionary of metrics
         return {
             "hits": hits,
             "misses": misses,
             "hit_ratio": round(hit_ratio, 4)
         }
-    
+
     except Exception as e:
         logger.error(f"Error retrieving Redis metrics: {e}")
         return {"error": str(e)}
